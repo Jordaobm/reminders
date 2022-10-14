@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useNavigation } from "@react-navigation/native";
-import { format } from "date-fns";
+import { format, isAfter } from "date-fns";
 import { ArrowLeft, TrashSimple } from "phosphor-react-native";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -15,6 +15,7 @@ import {
   DeleteReminderDatabase,
   UpdateReminderDatabase,
 } from "../../services/database";
+import { Notification } from "../../services/Notification";
 import { COLORS, FONTS } from "../../styles/global";
 import { REGEX_FORMAT_DATE, TYPES } from "../../utils/constantes";
 import { dateWithoutTimezone, parsedDate } from "../../utils/date";
@@ -27,6 +28,8 @@ interface ReminderProps {
 
 export const Reminder = ({ route }: ReminderProps) => {
   const navigation = useNavigation();
+
+  const { reminderNotification } = Notification();
 
   const [type, setType] = useState("unique");
 
@@ -43,7 +46,11 @@ export const Reminder = ({ route }: ReminderProps) => {
             if (new RegExp(REGEX_FORMAT_DATE).exec(value)) {
               const isValidDate = parsedDate(value);
 
-              return !isNaN(isValidDate.getTime());
+              if (!isNaN(isValidDate.getTime())) {
+                return isAfter(isValidDate, new Date());
+              }
+
+              return false;
             }
 
             return false;
@@ -85,13 +92,17 @@ export const Reminder = ({ route }: ReminderProps) => {
   };
 
   const onSubmit = async () => {
-    console.log("onSubmit");
-
     const newReminder = { ...getValues(), type } as IReminder;
 
     if (getValues("id")) {
       await UpdateReminderDatabase(newReminder);
     } else {
+      reminderNotification({
+        date: dateWithoutTimezone(new Date(parsedDate(newReminder?.date))),
+        message: newReminder?.description,
+        title: newReminder?.title,
+        reminder: newReminder,
+      });
       await CreateReminderDatabase(newReminder);
     }
 

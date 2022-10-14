@@ -5,11 +5,14 @@ import { ScrollView } from "react-native";
 import styled from "styled-components/native";
 import { Timeline } from "../../components/Timeline";
 import { ReadAllRemindersDatabase } from "../../services/database";
+import { Notification } from "../../services/Notification";
 import { COLORS, FONTS } from "../../styles/global";
 import { IGroupedReminders, parsedReminders } from "../../utils/reminders";
 
 export const Home = () => {
   const navigation = useNavigation();
+
+  const { getReminderNotifications } = Notification();
 
   const [groupedReminders, setGroupedReminders] = useState<IGroupedReminders[]>(
     []
@@ -17,9 +20,11 @@ export const Home = () => {
 
   useFocusEffect(
     useCallback(() => {
-      ReadAllRemindersDatabase().then((response) =>
-        setGroupedReminders(parsedReminders(response))
-      );
+      ReadAllRemindersDatabase().then((response) => {
+        const reminders = parsedReminders(response);
+        setGroupedReminders(reminders);
+        getReminderNotifications((notifications) => console.log(notifications));
+      });
     }, [])
   );
 
@@ -57,7 +62,7 @@ const HeaderText = styled.Text`
   font-weight: bold;
   font-family: ${FONTS.medium};
 `;
-const AddReminderButton = styled.TouchableHighlight`
+const AddReminderButton = styled.TouchableOpacity`
   position: absolute;
   bottom: 4%;
   right: 4%;
