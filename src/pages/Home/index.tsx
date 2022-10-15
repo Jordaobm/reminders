@@ -26,7 +26,7 @@ export const Home = () => {
 
   return (
     <>
-      <ScrollView>
+      <ScrollView style={{ backgroundColor: COLORS.white }}>
         <Header>
           <HeaderText>Lembretes</HeaderText>
         </Header>

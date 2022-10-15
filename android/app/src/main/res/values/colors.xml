@@ -1,3 +1,8 @@
 <resources>
   <color name="white">#FFF</color>
+  <color name="app_bg">#FFF</color>
+  <color name="splashscreen_bg">#2A2073</color>
+  <color name="status_bar_color">#2A2073</color>
+  <color name="gradientstart">#2A2073</color>
+  <color name="gradientend">#06103A</color>
 </resources>

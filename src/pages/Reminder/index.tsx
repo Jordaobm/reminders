@@ -112,7 +112,7 @@ export const Reminder = ({ route }: ReminderProps) => {
 
   return (
     <Container>
-      <ScrollView>
+      <ScrollView style={{ backgroundColor: COLORS.white }}>
         <Header>
           <TouchableOpacity onPress={goBack}>
             <ArrowLeft size={24} color={COLORS.blue[900]} />
