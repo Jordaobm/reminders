@@ -6,7 +6,7 @@ import { IGroupedReminders, parsedReminders } from "../utils/reminders";
 const CHANNEL_ID = "agendaAppChannelId";
 const CHANNEL_NAME = "agendaAppChannelName";
 const SOUND_NAME = "my_sound.mp3";
-
+const ICON = "ic_launcher";
 interface INotification {
   data: IReminder;
   date: string;
@@ -43,13 +43,15 @@ export const Notification = () => {
 
     reminders?.forEach((reminder) =>
       PushNotification.localNotificationSchedule({
+        userInfo: reminder,
         title: reminder?.title || "",
         date: dateWithoutTimezone(new Date(reminder?.date)),
         message: reminder?.description || "",
         allowWhileIdle: true,
         channelId: CHANNEL_ID,
-        userInfo: reminder,
         soundName: SOUND_NAME,
+        largeIcon: ICON,
+        smallIcon: ICON,
       })
     );
   };
@@ -82,9 +84,13 @@ export const Notification = () => {
 
   const localNotification = () => {
     PushNotification.localNotification({
-      message: "sim",
+      title: "Lembrete",
+      message: "Descrição do lembrete",
+      allowWhileIdle: true,
       channelId: CHANNEL_ID,
-      soundName: "default",
+      soundName: SOUND_NAME,
+      largeIcon: ICON,
+      smallIcon: ICON,
     });
   };
 

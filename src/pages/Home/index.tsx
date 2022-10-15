@@ -5,14 +5,11 @@ import { ScrollView } from "react-native";
 import styled from "styled-components/native";
 import { Timeline } from "../../components/Timeline";
 import { ReadAllRemindersDatabase } from "../../services/database";
-import { Notification } from "../../services/Notification";
 import { COLORS, FONTS } from "../../styles/global";
 import { groupingReminders, IGroupedReminders } from "../../utils/reminders";
 
 export const Home = () => {
   const navigation = useNavigation();
-
-  const { getReminderNotifications } = Notification();
 
   const [groupedReminders, setGroupedReminders] = useState<IGroupedReminders[]>(
     []
@@ -23,7 +20,6 @@ export const Home = () => {
       ReadAllRemindersDatabase().then((response) => {
         const reminders = groupingReminders(response);
         setGroupedReminders(reminders);
-        getReminderNotifications().then((e) => console.log(JSON.stringify(e)));
       });
     }, [])
   );

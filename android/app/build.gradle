@@ -217,6 +217,7 @@ android {
             keyPassword 'android'
         }
     }
+    namespace 'com.agendaapp'
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
