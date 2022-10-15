@@ -1,12 +1,34 @@
-import { useEffect } from "react";
-import PushNotification from "react-native-push-notification";
+import PushNotification, { Importance } from "react-native-push-notification";
 import { IReminder } from "../@types/Reminder";
-import { IGroupedReminders } from "../utils/reminders";
+import { dateWithoutTimezone } from "../utils/date";
+import { IGroupedReminders, parsedReminders } from "../utils/reminders";
+
+const CHANNEL_ID = "agendaAppChannelId";
+const CHANNEL_NAME = "agendaAppChannelName";
+const SOUND_NAME = "my_sound.mp3";
+
+interface INotification {
+  data: IReminder;
+  date: string;
+  id: string;
+  message: string;
+  number: null;
+  repeatInterval: null;
+  soundName: null;
+  title: string;
+}
 
 export const Notification = () => {
-  useEffect(() => {
-    createDefaultChannels();
-  }, []);
+  PushNotification.createChannel(
+    {
+      channelId: CHANNEL_ID, // (required)
+      channelName: CHANNEL_NAME, // (required)
+      soundName: SOUND_NAME, // (optional) See `soundName` parameter of `localNotification` function
+      importance: Importance.HIGH, // (optional) default: 4. Int value of the Android notification importance
+      vibrate: true, // (optional) default: true. Creates the default vibration patten if true.
+    },
+    () => {} // (optional) callback returns whether the channel was created, false means it already existed.
+  );
 
   PushNotification.getApplicationIconBadgeNumber(function (number) {
     if (number > 0) {
@@ -16,57 +38,59 @@ export const Notification = () => {
 
   PushNotification.getChannels(() => {});
 
-  const createDefaultChannels = () => {
-    PushNotification.createChannel(
-      {
-        channelId: "default-channel-id", // (required)
-        channelName: "Default channel", // (required)
-        channelDescription: "A default channel", // (optional) default: undefined.
-        soundName: "default", // (optional) See `soundName` parameter of `localNotification` function
-        importance: 4, // (optional) default: 4. Int value of the Android notification importance
-        vibrate: true, // (optional) default: true. Creates the default vibration patten if true.
-      },
-      () => console.log() // (optional) callback returns whether the channel was created, false means it already existed.
+  const createNotifications = async (receivedReminder: IReminder) => {
+    const reminders = parsedReminders(receivedReminder);
+
+    reminders?.forEach((reminder) =>
+      PushNotification.localNotificationSchedule({
+        title: reminder?.title || "",
+        date: dateWithoutTimezone(new Date(reminder?.date)),
+        message: reminder?.description || "",
+        allowWhileIdle: true,
+        channelId: CHANNEL_ID,
+        userInfo: reminder,
+        soundName: SOUND_NAME,
+      })
     );
   };
 
-  interface ScheduleNotificationProps {
-    title: string;
-    date: Date;
-    message: string;
-    reminder: IReminder;
-  }
+  const cancelNotification = async (reminderId: string) => {
+    const notifications = await getReminderNotifications();
 
-  const reminderNotification = ({
-    date,
-    message = "",
-    title,
-    reminder,
-  }: ScheduleNotificationProps) => {
-    PushNotification.localNotificationSchedule({
-      title,
-      date,
-      message,
-      allowWhileIdle: false,
-      channelId: "default-channel-id",
-      userInfo: reminder,
+    notifications?.forEach((notification) => {
+      if (notification?.data?.id === reminderId) {
+        PushNotification.cancelLocalNotification(notification?.id);
+      }
     });
-  };
-
-  const cancelNotification = (notificationId: string) => {
-    PushNotification.cancelLocalNotifications({ id: "" + notificationId });
   };
 
   const cancelAllNotifications = () => {
     PushNotification.cancelAllLocalNotifications();
   };
 
-  const getReminderNotifications = (callback: any) => {
-    return PushNotification.getScheduledLocalNotifications(callback);
+  const getReminderNotifications = async () => {
+    const getNotificationsPromise = new Promise((resolve) => {
+      PushNotification.getScheduledLocalNotifications((notifications) =>
+        resolve(notifications)
+      );
+    });
+
+    const notifications = await getNotificationsPromise;
+
+    return notifications as INotification[];
+  };
+
+  const localNotification = () => {
+    PushNotification.localNotification({
+      message: "sim",
+      channelId: CHANNEL_ID,
+      soundName: "default",
+    });
   };
 
   return {
-    reminderNotification,
+    localNotification,
+    createNotifications,
     getReminderNotifications,
     cancelAllNotifications,
     cancelNotification,

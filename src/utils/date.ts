@@ -13,3 +13,7 @@ export const parsedDate = (value: string) => {
 export const dateWithoutTimezone = (date: Date) => {
   return new Date(date.toISOString().slice(0, -1));
 };
+
+export const getDateWithoutHour = (date: Date) => {
+  return new Date(`${date.toISOString()?.split("T")[0]}T00:00:00.000`);
+};

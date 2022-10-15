@@ -1,11 +1,11 @@
 import { useNavigation } from "@react-navigation/native";
-import { format } from "date-fns";
+import { format, isAfter, isBefore, isEqual, isToday } from "date-fns";
 import ptBr from "date-fns/locale/pt-BR";
-import React from "react";
+import React, { useMemo, useState } from "react";
 import styled from "styled-components/native";
 import { COLORS, FONTS } from "../../styles/global";
-import { TYPES } from "../../utils/constantes";
-import { dateWithoutTimezone } from "../../utils/date";
+import { FILTERS, TYPES } from "../../utils/constantes";
+import { dateWithoutTimezone, getDateWithoutHour } from "../../utils/date";
 import { IGroupedReminders } from "../../utils/reminders";
 
 interface TimelineProps {
@@ -15,53 +15,114 @@ interface TimelineProps {
 export const Timeline = ({ groupedReminders }: TimelineProps) => {
   const navigation = useNavigation();
 
+  const [filter, setFilter] = useState(FILTERS.next.value);
+
+  const removingOldReminders = useMemo(() => {
+    const filtered = groupedReminders?.filter((grouped) => {
+      const currentDate = getDateWithoutHour(new Date());
+
+      const dateGroup = getDateWithoutHour(new Date(grouped?.date));
+
+      if (filter === FILTERS.next.value) {
+        if (
+          isEqual(dateGroup, currentDate) ||
+          isAfter(dateGroup, currentDate)
+        ) {
+          return grouped;
+        }
+      }
+
+      if (filter === FILTERS.past.value) {
+        if (isBefore(dateGroup, currentDate)) {
+          return grouped;
+        }
+      }
+
+      if (filter === FILTERS.all.value) {
+        return grouped;
+      }
+    });
+
+    return filtered;
+  }, [groupedReminders, filter]);
+
   return (
     <Container>
-      {groupedReminders?.map((groupedReminder) => {
-        const date = format(
-          dateWithoutTimezone(new Date(groupedReminder?.date)),
-          "dd 'de' MMM",
-          { locale: ptBr }
-        );
+      <ContainerFilters>
+        <Button
+          opacity={filter === FILTERS.next.value ? 1 : 0.3}
+          onPress={() => setFilter(FILTERS.next.value)}
+        >
+          <ButtonText>Próximos</ButtonText>
+        </Button>
+        <Button
+          opacity={filter === FILTERS.past.value ? 1 : 0.3}
+          onPress={() => setFilter(FILTERS.past.value)}
+        >
+          <ButtonText>Passados</ButtonText>
+        </Button>
+        <Button
+          opacity={filter === FILTERS.all.value ? 1 : 0.3}
+          onPress={() => setFilter(FILTERS.all.value)}
+        >
+          <ButtonText>Todos</ButtonText>
+        </Button>
+      </ContainerFilters>
 
-        return (
-          <ReminderGroup key={groupedReminder?.id}>
-            <ReminderGroupText>{date}</ReminderGroupText>
+      <ContainerReminders>
+        {removingOldReminders?.map((groupedReminder) => {
+          const date = format(
+            dateWithoutTimezone(new Date(groupedReminder?.date)),
+            "dd 'de' MMM",
+            { locale: ptBr }
+          );
 
-            <Reminders>
-              {groupedReminder?.reminders?.map((reminder) => {
-                let color = "";
+          return (
+            <ReminderGroup key={groupedReminder?.id}>
+              <ReminderGroupText>{date}</ReminderGroupText>
 
-                if (reminder?.type === "unique") {
-                  color = COLORS.green[500];
-                }
+              <Reminders>
+                {groupedReminder?.reminders?.map((reminder) => {
+                  let color = COLORS.blue[800];
 
-                if (reminder?.type === "days") {
-                  color = COLORS.red[500];
-                }
+                  if (isToday(dateWithoutTimezone(new Date(reminder?.date)))) {
+                    color = COLORS.green[500];
+                  }
 
-                if (reminder?.type === "month") {
-                  color = COLORS.blue[800];
-                }
+                  if (
+                    isBefore(
+                      dateWithoutTimezone(new Date(reminder?.date)),
+                      new Date()
+                    )
+                  ) {
+                    color = COLORS.red[500];
+                  }
 
-                return (
-                  <Reminder
-                    backgroundColor={color}
-                    key={reminder?.id}
-                    onPress={() => navigation.navigate("Reminder", reminder)}
-                  >
-                    <ReminderTitle>{reminder?.title}</ReminderTitle>
-                    <ReminderDescription>
-                      {reminder?.description}
-                    </ReminderDescription>
-                    <ReminderType>{TYPES[reminder?.type]?.label}</ReminderType>
-                  </Reminder>
-                );
-              })}
-            </Reminders>
-          </ReminderGroup>
-        );
-      })}
+                  return (
+                    <Reminder
+                      backgroundColor={color}
+                      key={reminder?.id}
+                      onPress={() => navigation.navigate("Reminder", reminder)}
+                    >
+                      <ReminderTitle>{reminder?.title}</ReminderTitle>
+                      <ReminderDescription>
+                        {reminder?.description}
+                      </ReminderDescription>
+                      <ReminderType>
+                        {format(
+                          dateWithoutTimezone(new Date(reminder?.date)),
+                          "HH:mm"
+                        )}{" "}
+                        {TYPES[reminder?.type]?.label}
+                      </ReminderType>
+                    </Reminder>
+                  );
+                })}
+              </Reminders>
+            </ReminderGroup>
+          );
+        })}
+      </ContainerReminders>
     </Container>
   );
 };
@@ -71,6 +132,35 @@ export const Container = styled.View`
   padding: 0 4%;
   padding-bottom: 120px;
 `;
+
+export const ContainerReminders = styled.View`
+  width: 100%;
+`;
+
+export const ContainerFilters = styled.View`
+  width: 100%;
+  flex-direction: row;
+`;
+
+interface ButtonProps {
+  opacity: number;
+}
+export const Button = styled.TouchableHighlight<ButtonProps>`
+  width: 100px;
+  background-color: ${COLORS.button};
+  opacity: ${(props) => props.opacity};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border-radius: 8px;
+  margin-right: 8px;
+`;
+export const ButtonText = styled.Text`
+  font-family: ${FONTS.bold};
+  color: ${COLORS.blue[900]};
+`;
+
 export const ReminderGroup = styled.View`
   width: 100%;
   display: flex;

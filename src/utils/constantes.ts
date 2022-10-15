@@ -15,3 +15,18 @@ export const TYPES = {
     value: "days",
   },
 };
+
+export const FILTERS = {
+  next: {
+    label: "Próximo",
+    value: "next",
+  },
+  past: {
+    label: "Passados",
+    value: "past",
+  },
+  all: {
+    label: "Todos",
+    value: "all",
+  },
+};

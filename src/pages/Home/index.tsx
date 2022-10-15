@@ -7,7 +7,7 @@ import { Timeline } from "../../components/Timeline";
 import { ReadAllRemindersDatabase } from "../../services/database";
 import { Notification } from "../../services/Notification";
 import { COLORS, FONTS } from "../../styles/global";
-import { IGroupedReminders, parsedReminders } from "../../utils/reminders";
+import { groupingReminders, IGroupedReminders } from "../../utils/reminders";
 
 export const Home = () => {
   const navigation = useNavigation();
@@ -21,9 +21,9 @@ export const Home = () => {
   useFocusEffect(
     useCallback(() => {
       ReadAllRemindersDatabase().then((response) => {
-        const reminders = parsedReminders(response);
+        const reminders = groupingReminders(response);
         setGroupedReminders(reminders);
-        getReminderNotifications((notifications) => console.log(notifications));
+        getReminderNotifications().then((e) => console.log(JSON.stringify(e)));
       });
     }, [])
   );

@@ -9,47 +9,11 @@ export interface IGroupedReminders {
   reminders: IReminder[];
 }
 
-export const parsedReminders = (receivedReminders: IReminder[]) => {
+export const groupingReminders = (receivedReminders: IReminder[]) => {
   const reminders: IReminder[] = [];
 
-  const lastDateOfCurrentYear = new Date(new Date().getUTCFullYear(), 11, 31);
-
   receivedReminders?.forEach((reminder) => {
-    if (reminder?.type === "days" && reminder?.interval) {
-      let reminderDate = dateWithoutTimezone(new Date(reminder?.date));
-
-      for (
-        reminderDate;
-        isBefore(reminderDate, lastDateOfCurrentYear);
-        reminderDate = addDays(reminderDate, reminder?.interval)
-      ) {
-        const newReminder: IReminder = {
-          ...reminder,
-          date: reminderDate?.toISOString(),
-        };
-        reminders?.push(newReminder);
-      }
-    }
-
-    if (reminder?.type === "month") {
-      let reminderDate = dateWithoutTimezone(new Date(reminder?.date));
-
-      for (
-        reminderDate;
-        isBefore(reminderDate, lastDateOfCurrentYear);
-        reminderDate = addMonths(reminderDate, 1)
-      ) {
-        const newReminder: IReminder = {
-          ...reminder,
-          date: reminderDate?.toISOString(),
-        };
-        reminders?.push(newReminder);
-      }
-    }
-
-    if (reminder?.type === "unique") {
-      reminders?.push(reminder);
-    }
+    reminders?.push(...parsedReminders(reminder));
   });
 
   const groupedByDay: IGroupedReminders[] = reminders?.reduce(
@@ -85,4 +49,48 @@ export const parsedReminders = (receivedReminders: IReminder[]) => {
   );
 
   return groupedByDay;
+};
+
+export const parsedReminders = (reminder: IReminder) => {
+  const reminders: IReminder[] = [];
+
+  const lastDateOfCurrentYear = new Date(new Date().getUTCFullYear(), 11, 31);
+
+  if (reminder?.type === "days" && reminder?.interval) {
+    let reminderDate = dateWithoutTimezone(new Date(reminder?.date));
+
+    for (
+      reminderDate;
+      isBefore(reminderDate, lastDateOfCurrentYear);
+      reminderDate = addDays(reminderDate, reminder?.interval)
+    ) {
+      const newReminder: IReminder = {
+        ...reminder,
+        date: reminderDate?.toISOString(),
+      };
+      reminders?.push(newReminder);
+    }
+  }
+
+  if (reminder?.type === "month") {
+    let reminderDate = dateWithoutTimezone(new Date(reminder?.date));
+
+    for (
+      reminderDate;
+      isBefore(reminderDate, lastDateOfCurrentYear);
+      reminderDate = addMonths(reminderDate, 1)
+    ) {
+      const newReminder: IReminder = {
+        ...reminder,
+        date: reminderDate?.toISOString(),
+      };
+      reminders?.push(newReminder);
+    }
+  }
+
+  if (reminder?.type === "unique") {
+    reminders?.push(reminder);
+  }
+
+  return reminders;
 };

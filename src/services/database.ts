@@ -1,7 +1,7 @@
 import uuid from "react-native-uuid";
 import Realm from "realm";
 import { IReminder } from "../@types/Reminder";
-import { parsedDate } from "../utils/date";
+import { Notification } from "./Notification";
 
 const ReminderSchema = {
   name: "Reminder",
@@ -21,6 +21,8 @@ const config = {
   schema: [ReminderSchema],
 };
 
+const { createNotifications, cancelNotification } = Notification();
+
 export const CreateReminderDatabase = async (reminder: IReminder) => {
   const realm = await Realm.open(config);
 
@@ -28,12 +30,13 @@ export const CreateReminderDatabase = async (reminder: IReminder) => {
     ...reminder,
     id: String(uuid.v4()),
     interval: Number(reminder?.interval) || 0,
-    date: parsedDate(reminder?.date).toISOString(),
   };
 
   realm.write(() => {
     realm.create("Reminder", saveReminder);
   });
+
+  createNotifications(saveReminder);
 
   realm.close();
 };
@@ -82,12 +85,16 @@ export const UpdateReminderDatabase = async (updateReminder: IReminder) => {
 
   realm.write(() => {
     reminders[0].id = updateReminder?.id;
-    reminders[0].date = parsedDate(updateReminder?.date).toISOString();
+    reminders[0].date = updateReminder?.date;
     reminders[0].description = updateReminder?.description;
     reminders[0].interval = updateReminder?.interval;
     reminders[0].title = updateReminder?.title;
     reminders[0].type = updateReminder?.type;
   });
+
+  await cancelNotification(updateReminder?.id);
+
+  createNotifications(updateReminder);
 
   realm.close();
 
@@ -104,6 +111,8 @@ export const DeleteReminderDatabase = async (reminderId: string) => {
   realm.write(() => {
     realm.delete(reminder);
   });
+
+  await cancelNotification(reminderId);
 
   realm.close();
 };
