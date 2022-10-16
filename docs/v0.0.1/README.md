@@ -1,5 +1,7 @@
 # v0.0.1 - Build para testes apenas!
 
+[Download](https://drive.google.com/file/d/14PbDbfMRmaf6bitF39KrR0AhF7WvsVKZ/view?usp=sharing)
+
 ## Funcionalidades
 
 - [x] Cadastro / Edição e Exclusão de lembretes.
