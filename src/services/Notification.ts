@@ -1,6 +1,6 @@
 import PushNotification, { Importance } from "react-native-push-notification";
 import { IReminder } from "../@types/Reminder";
-import { dateWithoutTimezone } from "../utils/date";
+import { dateWithTimezone } from "../utils/date";
 import { IGroupedReminders, parsedReminders } from "../utils/reminders";
 
 const CHANNEL_ID = "agendaAppChannelId";
@@ -45,7 +45,7 @@ export const Notification = () => {
       PushNotification.localNotificationSchedule({
         userInfo: reminder,
         title: reminder?.title || "",
-        date: dateWithoutTimezone(new Date(reminder?.date)),
+        date: dateWithTimezone(reminder?.date),
         message: reminder?.description || "",
         allowWhileIdle: true,
         channelId: CHANNEL_ID,

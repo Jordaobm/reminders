@@ -1,7 +1,6 @@
 import { addDays, addMonths, isBefore } from "date-fns";
-import { IReminder } from "../@types/Reminder";
-import { dateWithoutTimezone } from "./date";
 import uuid from "react-native-uuid";
+import { IReminder } from "../@types/Reminder";
 
 export interface IGroupedReminders {
   date: string;
@@ -57,7 +56,7 @@ export const parsedReminders = (reminder: IReminder) => {
   const lastDateOfCurrentYear = new Date(new Date().getUTCFullYear(), 11, 31);
 
   if (reminder?.type === "days" && reminder?.interval) {
-    let reminderDate = dateWithoutTimezone(new Date(reminder?.date));
+    let reminderDate = new Date(reminder?.date);
 
     for (
       reminderDate;
@@ -73,7 +72,7 @@ export const parsedReminders = (reminder: IReminder) => {
   }
 
   if (reminder?.type === "month") {
-    let reminderDate = dateWithoutTimezone(new Date(reminder?.date));
+    let reminderDate = new Date(reminder?.date);
 
     for (
       reminderDate;

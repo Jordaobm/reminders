@@ -1,10 +1,9 @@
 import { useNavigation } from "@react-navigation/native";
-import { format, isAfter, isBefore, isEqual, isToday } from "date-fns";
-import ptBr from "date-fns/locale/pt-BR";
+import { isAfter, isBefore, isEqual, isToday } from "date-fns";
 import React, { useMemo, useState } from "react";
 import styled from "styled-components/native";
 import { COLORS, FONTS } from "../../styles/global";
-import { FILTERS, TYPES } from "../../utils/constantes";
+import { FILTERS, MONTHS, TYPES } from "../../utils/constantes";
 import { dateWithoutTimezone, getDateWithoutHour } from "../../utils/date";
 import { IGroupedReminders } from "../../utils/reminders";
 
@@ -17,9 +16,9 @@ export const Timeline = ({ groupedReminders }: TimelineProps) => {
 
   const [filter, setFilter] = useState(FILTERS.next.value);
 
-  const removingOldReminders = useMemo(() => {
+  const groupedRemindersAfterFilter = useMemo(() => {
     const filtered = groupedReminders?.filter((grouped) => {
-      const currentDate = getDateWithoutHour(new Date());
+      const currentDate = getDateWithoutHour(dateWithoutTimezone(new Date()));
 
       const dateGroup = getDateWithoutHour(new Date(grouped?.date));
 
@@ -70,33 +69,39 @@ export const Timeline = ({ groupedReminders }: TimelineProps) => {
       </ContainerFilters>
 
       <ContainerReminders>
-        {removingOldReminders?.map((groupedReminder) => {
-          const date = format(
-            dateWithoutTimezone(new Date(groupedReminder?.date)),
-            "dd 'de' MMM",
-            { locale: ptBr }
-          );
+        {groupedRemindersAfterFilter?.map((groupedReminder) => {
+          const date = new Date(groupedReminder?.date);
 
           return (
             <ReminderGroup key={groupedReminder?.id}>
-              <ReminderGroupText>{date}</ReminderGroupText>
+              <ReminderGroupText>{`${date?.getUTCDate()} de ${
+                MONTHS[date?.getUTCMonth() + 1]
+              }`}</ReminderGroupText>
 
               <Reminders>
                 {groupedReminder?.reminders?.map((reminder) => {
                   let color = COLORS.blue[800];
 
-                  if (isToday(dateWithoutTimezone(new Date(reminder?.date)))) {
+                  if (isToday(new Date(reminder?.date))) {
                     color = COLORS.green[500];
                   }
 
                   if (
                     isBefore(
-                      dateWithoutTimezone(new Date(reminder?.date)),
-                      new Date()
+                      new Date(reminder?.date),
+                      dateWithoutTimezone(new Date())
                     )
                   ) {
                     color = COLORS.red[500];
                   }
+
+                  const reminderDate = new Date(reminder?.date);
+
+                  const hours = `${String(
+                    reminderDate?.getUTCHours()
+                  )?.padStart(2, "0")}:${String(
+                    reminderDate?.getUTCMinutes()
+                  )?.padStart(2, "0")} `;
 
                   return (
                     <Reminder
@@ -109,11 +114,7 @@ export const Timeline = ({ groupedReminders }: TimelineProps) => {
                         {reminder?.description}
                       </ReminderDescription>
                       <ReminderType>
-                        {format(
-                          dateWithoutTimezone(new Date(reminder?.date)),
-                          "HH:mm"
-                        )}{" "}
-                        {TYPES[reminder?.type]?.label}
+                        {hours} {TYPES[reminder?.type]?.label}
                       </ReminderType>
                     </Reminder>
                   );

@@ -1,7 +1,6 @@
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { Plus } from "phosphor-react-native";
 import React, { useCallback, useState } from "react";
-import { ScrollView } from "react-native";
 import styled from "styled-components/native";
 import { Timeline } from "../../components/Timeline";
 import { ReadAllRemindersDatabase } from "../../services/database";
@@ -26,7 +25,7 @@ export const Home = () => {
 
   return (
     <>
-      <ScrollView style={{ backgroundColor: COLORS.white }}>
+      <Scroll>
         <Header>
           <HeaderText>Lembretes</HeaderText>
         </Header>
@@ -34,7 +33,7 @@ export const Home = () => {
         <ContainerTimeline>
           <Timeline groupedReminders={groupedReminders} />
         </ContainerTimeline>
-      </ScrollView>
+      </Scroll>
 
       <AddReminderButton onPress={() => navigation?.navigate("Reminder")}>
         <Plus size={24} color={COLORS.white} />
@@ -42,6 +41,10 @@ export const Home = () => {
     </>
   );
 };
+const Scroll = styled.ScrollView`
+  background-color: ${COLORS.white};
+  height: 100%;
+`;
 
 const Header = styled.View`
   display: flex;

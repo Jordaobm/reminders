@@ -1,11 +1,11 @@
 /* eslint-disable react-native/no-inline-styles */
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useNavigation } from "@react-navigation/native";
-import { format, isAfter } from "date-fns";
+import { isAfter } from "date-fns";
 import { ArrowLeft, TrashSimple } from "phosphor-react-native";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { ScrollView, TouchableOpacity, View } from "react-native";
+import { TouchableOpacity, View } from "react-native";
 import { TextInputMask } from "react-native-masked-text";
 import styled from "styled-components/native";
 import * as yup from "yup";
@@ -17,7 +17,11 @@ import {
 } from "../../services/database";
 import { COLORS, FONTS } from "../../styles/global";
 import { REGEX_FORMAT_DATE, TYPES } from "../../utils/constantes";
-import { dateWithoutTimezone, parsedDate } from "../../utils/date";
+import {
+  dateToString,
+  dateWithoutTimezone,
+  parsedDate,
+} from "../../utils/date";
 
 interface ReminderProps {
   route?: {
@@ -44,7 +48,7 @@ export const Reminder = ({ route }: ReminderProps) => {
               const isValidDate = parsedDate(value);
 
               if (!isNaN(isValidDate.getTime())) {
-                return isAfter(isValidDate, new Date());
+                return isAfter(isValidDate, dateWithoutTimezone(new Date()));
               }
 
               return false;
@@ -76,10 +80,7 @@ export const Reminder = ({ route }: ReminderProps) => {
     defaultValues: route?.params?.id
       ? {
           ...route?.params,
-          date: format(
-            dateWithoutTimezone(new Date(route?.params?.date || "")),
-            "dd/MM/yyyy HH:mm"
-          ),
+          date: dateToString(route?.params?.date),
         }
       : ({} as IReminder),
   });
@@ -112,7 +113,7 @@ export const Reminder = ({ route }: ReminderProps) => {
 
   return (
     <Container>
-      <ScrollView style={{ backgroundColor: COLORS.white }}>
+      <Scroll>
         <Header>
           <TouchableOpacity onPress={goBack}>
             <ArrowLeft size={24} color={COLORS.blue[900]} />
@@ -242,7 +243,7 @@ export const Reminder = ({ route }: ReminderProps) => {
             )}
           />
         </NoteContainer>
-      </ScrollView>
+      </Scroll>
 
       <Button onPress={handleSubmit(onSubmit)}>
         <ButtonText>
@@ -252,6 +253,11 @@ export const Reminder = ({ route }: ReminderProps) => {
     </Container>
   );
 };
+
+const Scroll = styled.ScrollView`
+  background-color: ${COLORS.white};
+  height: 100%;
+`;
 
 const Container = styled.View`
   width: 100%;
