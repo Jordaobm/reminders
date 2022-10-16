@@ -1,0 +1,14 @@
+# v0.0.1 - Build para testes apenas!
+
+## Funcionalidades
+
+- [x] Cadastro / Edição e Exclusão de lembretes.
+- [x] Lembretes podem ser únicos, mensais ou em um intervalo de dias previamente informado pelo usuário, diversificando a forma como você deseja ser lembrado das coisas.
+- [x] Exibição dos próximos lembretes.
+- [x] Exibição dos lembretes que já se passaram.
+- [x] Exibição de todos os lembretes cadastrados.
+- [x] Funcionalidade de notificações para os lembretes.
+
+## 🛠️ Problemas e melhorias → v0.0.2
+
+- [ ]
