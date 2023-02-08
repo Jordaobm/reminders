@@ -6,6 +6,10 @@ export const TYPES = {
     label: "único",
     value: "unique",
   },
+  weekly: {
+    label: "semanal",
+    value: "weekly",
+  },
   month: {
     label: "Mensal",
     value: "month",

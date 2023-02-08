@@ -190,6 +190,12 @@ export const Reminder = ({ route }: ReminderProps) => {
               <OptionText>único</OptionText>
             </Option>
             <Option
+              selected={type === TYPES.weekly.value}
+              onPress={() => setType(TYPES.weekly.value)}
+            >
+              <OptionText>semanal</OptionText>
+            </Option>
+            <Option
               selected={type === TYPES.days.value}
               onPress={() => setType(TYPES.days.value)}
             >

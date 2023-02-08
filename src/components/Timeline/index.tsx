@@ -1,9 +1,10 @@
 import { useNavigation } from "@react-navigation/native";
-import { isAfter, isBefore, isEqual, isToday } from "date-fns";
+import { format, isAfter, isBefore, isEqual, isToday } from "date-fns";
+import ptBR from "date-fns/locale/pt-BR";
 import React, { useMemo, useState } from "react";
 import styled from "styled-components/native";
 import { COLORS, FONTS } from "../../styles/global";
-import { FILTERS, MONTHS, TYPES } from "../../utils/constantes";
+import { FILTERS, TYPES } from "../../utils/constantes";
 import { dateWithoutTimezone, getDateWithoutHour } from "../../utils/date";
 import { IGroupedReminders } from "../../utils/reminders";
 
@@ -74,9 +75,11 @@ export const Timeline = ({ groupedReminders }: TimelineProps) => {
 
           return (
             <ReminderGroup key={groupedReminder?.id}>
-              <ReminderGroupText>{`${date?.getUTCDate()} de ${
-                MONTHS[date?.getUTCMonth() + 1]
-              }`}</ReminderGroupText>
+              <ReminderGroupText>
+                {format(date, "EE',' dd 'de' MMM", {
+                  locale: ptBR,
+                })}
+              </ReminderGroupText>
 
               <Reminders>
                 {groupedReminder?.reminders?.map((reminder) => {
@@ -171,7 +174,7 @@ export const ReminderGroup = styled.View`
 `;
 export const ReminderGroupText = styled.Text`
   width: 40%;
-  font-size: 18px;
+  font-size: 16px;
   font-family: ${FONTS.bold};
   color: ${COLORS.black};
   opacity: 0.8;
