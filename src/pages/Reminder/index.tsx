@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useNavigation } from "@react-navigation/native";
-import { isAfter } from "date-fns";
+import { addDays, format, isAfter, subDays } from "date-fns";
 import { ArrowLeft, TrashSimple } from "phosphor-react-native";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -16,7 +16,7 @@ import {
   UpdateReminderDatabase,
 } from "../../services/database";
 import { COLORS, FONTS } from "../../styles/global";
-import { REGEX_FORMAT_DATE, TYPES } from "../../utils/constantes";
+import { DAYS_OF_WEEK, REGEX_FORMAT_DATE, TYPES } from "../../utils/constantes";
 import {
   dateToString,
   dateWithoutTimezone,
@@ -33,6 +33,7 @@ export const Reminder = ({ route }: ReminderProps) => {
   const navigation = useNavigation();
 
   const [type, setType] = useState("unique");
+  const [dayOfWeek, setDayOfWeek] = useState("");
 
   const schema = yup
     .object()
@@ -74,6 +75,7 @@ export const Reminder = ({ route }: ReminderProps) => {
     handleSubmit,
     getValues,
     control,
+    setValue,
     formState: { errors },
   } = useForm<IReminder>({
     resolver: yupResolver(schema),
@@ -109,6 +111,22 @@ export const Reminder = ({ route }: ReminderProps) => {
     DeleteReminderDatabase(getValues("id")).then(() => {
       goBack();
     });
+  };
+
+  const onSelectType = (selectedType: string) => {
+    setType(selectedType);
+    setDayOfWeek("");
+  };
+
+  const onSelectDayOfWeek = (selectedDay: string) => {
+    setDayOfWeek(selectedDay);
+
+    let date = subDays(new Date(), 1);
+
+    do {
+      date = addDays(date, 1);
+      setValue("date", format(date, "dd/MM/yyyy 00:00"));
+    } while (selectedDay !== format(date, "EEEE"));
   };
 
   return (
@@ -153,6 +171,88 @@ export const Reminder = ({ route }: ReminderProps) => {
         </InputContainer>
 
         <InputContainer>
+          <Label>Tipo de lembrete</Label>
+
+          <GroupButtons>
+            <Option
+              selected={type === TYPES.unique.value}
+              onPress={() => onSelectType(TYPES.unique.value)}
+            >
+              <OptionText>{TYPES.unique.label}</OptionText>
+            </Option>
+            <Option
+              selected={type === TYPES.weekly.value}
+              onPress={() => onSelectType(TYPES.weekly.value)}
+            >
+              <OptionText>{TYPES.weekly.label}</OptionText>
+            </Option>
+            <Option
+              selected={type === TYPES.days.value}
+              onPress={() => onSelectType(TYPES.days.value)}
+            >
+              <OptionText>{TYPES.days.label}</OptionText>
+            </Option>
+            <Option
+              selected={type === TYPES.month.value}
+              onPress={() => onSelectType(TYPES.month.value)}
+            >
+              <OptionText>{TYPES.month.label}</OptionText>
+            </Option>
+          </GroupButtons>
+        </InputContainer>
+
+        {type === TYPES.weekly.value && (
+          <InputContainer>
+            <Label>Selecione o dia da semana</Label>
+
+            <GroupButtons>
+              <Option
+                selected={dayOfWeek === DAYS_OF_WEEK.sunday.value}
+                onPress={() => onSelectDayOfWeek(DAYS_OF_WEEK.sunday.value)}
+              >
+                <OptionText>{DAYS_OF_WEEK.sunday.label}</OptionText>
+              </Option>
+              <Option
+                selected={dayOfWeek === DAYS_OF_WEEK.monday.value}
+                onPress={() => onSelectDayOfWeek(DAYS_OF_WEEK.monday.value)}
+              >
+                <OptionText>{DAYS_OF_WEEK.monday.label}</OptionText>
+              </Option>
+              <Option
+                selected={dayOfWeek === DAYS_OF_WEEK.tuesday.value}
+                onPress={() => onSelectDayOfWeek(DAYS_OF_WEEK.tuesday.value)}
+              >
+                <OptionText>{DAYS_OF_WEEK.tuesday.label}</OptionText>
+              </Option>
+              <Option
+                selected={dayOfWeek === DAYS_OF_WEEK.wednesday.value}
+                onPress={() => onSelectDayOfWeek(DAYS_OF_WEEK.wednesday.value)}
+              >
+                <OptionText>{DAYS_OF_WEEK.wednesday.label}</OptionText>
+              </Option>
+              <Option
+                selected={dayOfWeek === DAYS_OF_WEEK.thursday.value}
+                onPress={() => onSelectDayOfWeek(DAYS_OF_WEEK.thursday.value)}
+              >
+                <OptionText>{DAYS_OF_WEEK.thursday.label}</OptionText>
+              </Option>
+              <Option
+                selected={dayOfWeek === DAYS_OF_WEEK.friday.value}
+                onPress={() => onSelectDayOfWeek(DAYS_OF_WEEK.friday.value)}
+              >
+                <OptionText>{DAYS_OF_WEEK.friday.label}</OptionText>
+              </Option>
+              <Option
+                selected={dayOfWeek === DAYS_OF_WEEK.saturday.value}
+                onPress={() => onSelectDayOfWeek(DAYS_OF_WEEK.saturday.value)}
+              >
+                <OptionText>{DAYS_OF_WEEK.saturday.label}</OptionText>
+              </Option>
+            </GroupButtons>
+          </InputContainer>
+        )}
+
+        <InputContainer>
           <Label>Data e hora</Label>
 
           <Controller
@@ -177,31 +277,6 @@ export const Reminder = ({ route }: ReminderProps) => {
               </>
             )}
           />
-        </InputContainer>
-
-        <InputContainer>
-          <Label>Data e hora</Label>
-
-          <GroupButtons>
-            <Option
-              selected={type === TYPES.unique.value}
-              onPress={() => setType(TYPES.unique.value)}
-            >
-              <OptionText>único</OptionText>
-            </Option>
-            <Option
-              selected={type === TYPES.days.value}
-              onPress={() => setType(TYPES.days.value)}
-            >
-              <OptionText>dias</OptionText>
-            </Option>
-            <Option
-              selected={type === TYPES.month.value}
-              onPress={() => setType(TYPES.month.value)}
-            >
-              <OptionText>mensal</OptionText>
-            </Option>
-          </GroupButtons>
         </InputContainer>
 
         {type === TYPES.days.value && (
@@ -364,6 +439,7 @@ const FieldError = styled.Text`
 const GroupButtons = styled.View`
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
   width: 100%;
 `;
 

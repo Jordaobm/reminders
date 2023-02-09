@@ -6,13 +6,48 @@ export const TYPES = {
     label: "único",
     value: "unique",
   },
+  weekly: {
+    label: "semanal",
+    value: "weekly",
+  },
   month: {
-    label: "Mensal",
+    label: "mensal",
     value: "month",
   },
   days: {
-    label: "Dias",
+    label: "dias",
     value: "days",
+  },
+};
+
+export const DAYS_OF_WEEK = {
+  sunday: {
+    label: "domingo",
+    value: "Sunday",
+  },
+  monday: {
+    label: "segunda",
+    value: "Monday",
+  },
+  tuesday: {
+    label: "terça",
+    value: "Tuesday",
+  },
+  wednesday: {
+    label: "quarta",
+    value: "Wednesday",
+  },
+  thursday: {
+    label: "quinta",
+    value: "Thursday",
+  },
+  friday: {
+    label: "sexta",
+    value: "Friday",
+  },
+  saturday: {
+    label: "sábado",
+    value: "Saturday",
   },
 };
 

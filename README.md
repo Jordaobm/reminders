@@ -22,4 +22,16 @@ Para gerar um APK do aplicativo, entre pelo terminal Powershell na pasta android
 
     ./gradlew assembleRelease
 
+Em caso de falha no build, execute
+
+    rm -rf android/app/build
+    rm -rf android/build
+    cd android
+    ./gradlew clean
+    cd ../
+    yarn react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res
+    rm -rf android/app/src/main/res/drawable-*
+    cd android
+    ./gradlew assembleRelease
+
 Lembre-se de documentar as versões 🧬

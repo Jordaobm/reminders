@@ -1,4 +1,4 @@
-import { addDays, addMonths, isBefore } from "date-fns";
+import { addDays, addMonths, addWeeks, isBefore } from "date-fns";
 import uuid from "react-native-uuid";
 import { IReminder } from "../@types/Reminder";
 
@@ -78,6 +78,22 @@ export const parsedReminders = (reminder: IReminder) => {
       reminderDate;
       isBefore(reminderDate, lastDateOfCurrentYear);
       reminderDate = addMonths(reminderDate, 1)
+    ) {
+      const newReminder: IReminder = {
+        ...reminder,
+        date: reminderDate?.toISOString(),
+      };
+      reminders?.push(newReminder);
+    }
+  }
+
+  if (reminder?.type === "weekly") {
+    let reminderDate = new Date(reminder?.date);
+
+    for (
+      reminderDate;
+      isBefore(reminderDate, lastDateOfCurrentYear);
+      reminderDate = addWeeks(reminderDate, 1)
     ) {
       const newReminder: IReminder = {
         ...reminder,
