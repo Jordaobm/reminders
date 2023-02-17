@@ -13,4 +13,5 @@
 
 ## 🛠️ Problemas e melhorias → v0.0.2
 
-- [ ]
+- [ ] Adicionar tipo de lembrete semanal
+- [ ] Adicionar dia da semana na exibição dos lembretes

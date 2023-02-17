@@ -5,6 +5,7 @@ Página destinada ao aplicativo de lembretes que foi desenvolvido para me ajudar
 Versões do aplicativo:
 
 - <a href="docs\v0.0.1\README.md" target="_blank" rel="noopener noreferrer">v0.0.1</a>
+- <a href="docs\v0.0.2\README.md" target="_blank" rel="noopener noreferrer">v0.0.2</a>
 
 # ⚙️ Instruções
 
@@ -22,7 +23,7 @@ Para gerar um APK do aplicativo, entre pelo terminal Powershell na pasta android
 
     ./gradlew assembleRelease
 
-Em caso de falha no build, execute
+Em caso de falha no build, remova os arquivos de build e tente novamente. Execute
 
     rm -rf android/app/build
     rm -rf android/build
